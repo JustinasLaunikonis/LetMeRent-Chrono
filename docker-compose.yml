@@ -7,7 +7,7 @@ services:
 
     environment:
       SCRAPER_SERVICE_URL: "http://api:5000"
-      OLD_LISTINGS_DAYS: "1"
+      OLD_LISTINGS_DAYS: "30"
       SCHEDULER_INTERVAL_MINUTES: "10"
 
     networks:
