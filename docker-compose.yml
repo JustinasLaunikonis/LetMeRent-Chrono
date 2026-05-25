@@ -1,0 +1,18 @@
+services:
+  chrono_api:
+    build: .
+
+    ports:
+      - "5001:5001"
+
+    environment:
+      SCRAPER_SERVICE_URL: "http://api:5000"
+      OLD_LISTINGS_DAYS: "30"
+      SCHEDULER_INTERVAL_MINUTES: "10"
+
+    networks:
+      - mongodb_dev_net
+
+networks:
+  mongodb_dev_net:
+    external: true
