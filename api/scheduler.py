@@ -1,3 +1,6 @@
+from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
+
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from api.config import SCHEDULER_INTERVAL_MINUTES
@@ -6,42 +9,82 @@ from api.scraper_client import ScraperClient
 
 class ChronoScheduler:
     def __init__(self):
-        # Create a background scheduler
         self.scheduler = BackgroundScheduler()
-
-        # Create scraper API client
         self.client = ScraperClient()
 
     def start(self):
-        # Add a scheduled job that runs every configured number of minutes
         self.scheduler.add_job(
             self.run_tasks,
             "interval",
             minutes=SCHEDULER_INTERVAL_MINUTES,
             id="chrono_tasks",
-            replace_existing=True
+            replace_existing=True,
+            max_instances=1
         )
 
-        # Start the scheduler
         self.scheduler.start()
-
         print("Chrono scheduler started.")
 
     def run_tasks(self):
-        # Log task start
         print("Running scheduled chrono tasks...")
 
-        # Run spiders through scraper API
-        spiders_result = self.client.run_spiders()
+        tasks_result = self.client.get_chrono_tasks()
+        print("Chrono tasks result:", tasks_result)
 
-        # Print spiders execution result
-        print("Spiders result:", spiders_result)
+        if tasks_result["status_code"] != 200:
+            print("Could not fetch chrono tasks.")
+            return
 
-        # Delete old listings
+        tasks = tasks_result["body"].get("data", [])
+
+        if not tasks:
+            print("No chrono tasks found.")
+            return
+
+        city_spiders_map = defaultdict(set)
+
+        for task in tasks:
+            city = task.get("city")
+            spider = task.get("spider")
+
+            if not city:
+                continue
+
+            city = city.strip()
+
+            if spider:
+                city_spiders_map[city].add(spider.strip())
+            else:
+                city_spiders_map[city] = set()
+
+        if not city_spiders_map:
+            print("No valid cities found in chrono tasks.")
+            return
+
+        print("Cities to scrape:", list(city_spiders_map.keys()))
+
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = []
+
+            for city, spiders in city_spiders_map.items():
+                spiders_list = list(spiders) if spiders else None
+
+                future = executor.submit(
+                    self.client.run_spiders,
+                    city=city,
+                    spiders=spiders_list
+                )
+
+                futures.append((city, future))
+
+            for city, future in futures:
+                try:
+                    result = future.result()
+                    print(f"Spider result for {city}:", result)
+                except Exception as exc:
+                    print(f"Error running spiders for {city}:", exc)
+
         delete_result = self.client.delete_old_listings()
-
-        # Print delete result
         print("Delete old listings result:", delete_result)
 
-        # Log task completion
         print("Scheduled chrono tasks finished.")
