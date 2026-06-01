@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify
 
-from api.scraper_client import ScraperClient
+from api.scheduler import ChronoScheduler
 
 api = Blueprint("api", __name__)
-client = ScraperClient()
+chrono = ChronoScheduler()
 
 
 @api.get("/health")
@@ -13,11 +13,8 @@ def health():
 
 @api.get("/run-now")
 def run_now():
-    spiders_result = client.run_spiders()
-    delete_result = client.delete_old_listings()
+    chrono.run_tasks()
 
     return jsonify({
-        "message": "Tasks executed manually.",
-        "spiders_result": spiders_result,
-        "delete_result": delete_result
+        "message": "Scheduled chrono tasks executed manually."
     })
