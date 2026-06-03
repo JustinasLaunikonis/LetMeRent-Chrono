@@ -7,8 +7,8 @@ services:
 
     environment:
       SCRAPER_SERVICE_URL: "http://api:5000"
-      OLD_LISTINGS_DAYS: "30"
-      SCHEDULER_INTERVAL_MINUTES: "10"
+      OLD_LISTINGS_DAYS: "1"
+      SCHEDULER_INTERVAL_MINUTES: "3"
 
     networks:
       - mongodb_dev_net
