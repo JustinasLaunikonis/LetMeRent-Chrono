@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 
 
 class ChronoScheduler:
-    def __init__(self, app):
+    def __init__(self, app=None):
         self.app = app
         self.scheduler = BackgroundScheduler()
         self.client = ScraperClient()
