@@ -26,10 +26,8 @@ def create_app():
 
     app.register_blueprint(api)
 
-    scheduler = ChronoScheduler()
-
-    with app.app_context():
-        scheduler.start()
+    scheduler = ChronoScheduler(app)
+    scheduler.start()
 
     @app.route("/")
     def index():

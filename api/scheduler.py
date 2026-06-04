@@ -10,7 +10,8 @@ from datetime import datetime, timezone
 
 
 class ChronoScheduler:
-    def __init__(self):
+    def __init__(self, app):
+        self.app = app
         self.scheduler = BackgroundScheduler()
         self.client = ScraperClient()
         self.email_client = EmailClient()
@@ -107,11 +108,12 @@ class ChronoScheduler:
             body = f"New housing found in city: {city}"
 
             try:
-                self.email_client.send_email(
-                    to_email=user_email,
-                    subject=subject,
-                    body=body
-                )
+                with self.app.app_context():
+                    self.email_client.send_email(
+                        to_email=user_email,
+                        subject=subject,
+                        body=body
+                    )
 
                 sent_pairs.add(pair)
                 print(f"Email sent to {user_email} for city {city}")
