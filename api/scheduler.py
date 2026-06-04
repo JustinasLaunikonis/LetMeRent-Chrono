@@ -81,10 +81,17 @@ class ChronoScheduler:
             if pair in sent_pairs:
                 continue
 
+            print("=" * 50)
+            print("started_at:", started_at)
+            print("started_at iso:", started_at.isoformat())
+            print("city:", city)
+            print("=" * 50)
             listings_result = self.client.get_new_listings_by_city(
                 city=city,
                 created_after=started_at
             )
+            print("Listings result:", listings_result)
+
 
             if listings_result["status_code"] != 200:
                 print(f"Could not check new listings for city {city}")
