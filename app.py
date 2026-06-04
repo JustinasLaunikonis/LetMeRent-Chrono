@@ -1,6 +1,7 @@
 from flask import Flask
 from api.extensions import mail
 from api.scheduler import ChronoScheduler
+from api.routes import api
 from api.config import (
     MAIL_SERVER,
     MAIL_PORT,
@@ -22,6 +23,8 @@ def create_app():
     app.config["MAIL_USE_SSL"] = MAIL_USE_SSL
 
     mail.init_app(app)
+
+    app.register_blueprint(api)
 
     scheduler = ChronoScheduler()
 
