@@ -25,6 +25,7 @@ class ScraperClient:
         return self._response_data(response)
 
     def wait_for_spider_job(self, job_id):
+        print(f"Waiting for spider job {job_id}")
         while True:
             result = self.get_spider_job(job_id)
 
