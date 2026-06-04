@@ -113,17 +113,24 @@ class ChronoScheduler:
                 print(f"Error sending email to {user_email} for city {city}: {exc}")
 
     def run_and_wait_for_city(self, city, spiders_list):
+        print(f"Starting spider for {city}")
         result = self.client.run_spiders(
             city=city,
             spiders=spiders_list
         )
+        print(f"Run spider response for {city}:", result)
 
         if result["status_code"] != 202:
             return result
 
         job_id = result["body"]["job"]["id"]
+        print(f"Waiting for job {job_id} for city {city}")
 
-        return self.client.wait_for_spider_job(job_id)
+        final_result = self.client.wait_for_spider_job(job_id)
+
+        print(f"Final spider result for {city}:", final_result)
+
+        return final_result
 
     @staticmethod
     def group_tasks_by_city(tasks):

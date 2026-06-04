@@ -29,6 +29,8 @@ class ScraperClient:
         while True:
             result = self.get_spider_job(job_id)
 
+            print("Job status result:", result)
+
             if result["status_code"] != 200:
                 return result
 
