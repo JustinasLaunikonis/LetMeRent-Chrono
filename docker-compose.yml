@@ -12,7 +12,7 @@ services:
       SMTP_HOST: "smtp.gmail.com"
       SMTP_PORT: "587"
       SMTP_USER: "letmerent.notifications@gmail.com"
-      SMTP_PASSWORD: "kkvw clsk ttup qwvv"
+      SMTP_PASSWORD: "kkvwclskttupqwvv"
       EMAIL_FROM: "letmerent.notifications@gmail.com"
 
     networks:
