@@ -1,6 +1,6 @@
 from flask import Flask
 from api.extensions import mail
-from api.chrono_scheduler import ChronoScheduler
+from api.scheduler import ChronoScheduler
 from api.config import (
     MAIL_SERVER,
     MAIL_PORT,
