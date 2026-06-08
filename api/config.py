@@ -1,0 +1,15 @@
+import os
+
+SCRAPER_SERVICE_URL = os.environ["SCRAPER_SERVICE_URL"]
+OLD_LISTINGS_DAYS = int(os.environ["OLD_LISTINGS_DAYS"])
+SCHEDULER_INTERVAL_MINUTES = int(os.environ["SCHEDULER_INTERVAL_MINUTES"])
+
+MAIL_SERVER = os.environ["SMTP_HOST"]
+MAIL_PORT = int(os.environ["SMTP_PORT"])
+MAIL_USERNAME = os.environ["SMTP_USER"]
+MAIL_PASSWORD = os.environ["SMTP_PASSWORD"]
+
+MAIL_USE_TLS = True
+MAIL_USE_SSL = False
+
+EMAIL_FROM = os.environ["EMAIL_FROM"]
