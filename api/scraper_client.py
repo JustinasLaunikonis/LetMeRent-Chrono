@@ -85,14 +85,41 @@ class ScraperClient:
 
         return self._response_data(response)
 
-    def get_new_listings_by_city(self, city, created_after):
+    def get_matching_new_listings(self, task, created_after):
+        params = {
+            "city": task.get("city"),
+            "created_after": created_after.isoformat(),
+            "limit": 10,
+            "sort": "created_at",
+            "order": "desc",
+        }
+
+        if task.get("min_budget") is not None:
+            params["min_price"] = task["min_budget"]
+
+        if task.get("max_budget") is not None:
+            params["max_price"] = task["max_budget"]
+
+        if task.get("room_type"):
+            params["room_type"] = task["room_type"]
+
+        if task.get("furnishing"):
+            params["furnishing"] = task["furnishing"]
+
+        if task.get("pet_friendly") is not None:
+            params["pet_friendly"] = str(task["pet_friendly"]).lower()
+
         response = requests.get(
             f"{self.base_url}/data",
-            params={
-                "city": city,
-                "created_after": created_after.isoformat(),
-                "limit": 1
-            },
+            params=params,
+            timeout=30
+        )
+
+        return self._response_data(response)
+
+    def get_user_by_username(self, username):
+        response = requests.get(
+            f"{self.base_url}/users/by-username/{username}",
             timeout=30
         )
 

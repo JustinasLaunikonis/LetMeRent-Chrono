@@ -68,47 +68,86 @@ class ChronoScheduler:
         sent_pairs = set()
 
         for task in tasks:
-            user_email = task.get("user")
+            username = task.get("user")
             city = task.get("city")
 
-            if not user_email or not city:
+            if not username or not city:
                 continue
 
-            user_email = user_email.strip()
+            username = username.strip()
             city = city.strip()
 
-            pair = (user_email, city.lower())
+            pair = (username, city.lower())
 
             if pair in sent_pairs:
                 continue
 
-            print("=" * 50)
-            print("started_at:", started_at)
-            print("started_at iso:", started_at.isoformat())
-            print("city:", city)
-            print("=" * 50)
-            listings_result = self.client.get_new_listings_by_city(
-                city=city,
-                created_after=started_at
-            )
-            print("Listings result:", listings_result)
+            user_result = self.client.get_user_by_username(username)
 
-
-            if listings_result["status_code"] != 200:
-                print(f"Could not check new listings for city {city}")
+            if user_result["status_code"] != 200:
+                print(f"Could not find user by username: {username}")
                 continue
 
-            listings_count = listings_result["body"].get("count", 0)
+            user_email = user_result["body"]["user"].get("email")
 
-            if listings_count <= 0:
-                print(f"No new listings found for city {city}. Email not sent.")
+            if not user_email:
+                print(f"User {username} has no email")
+                continue
+
+            listings_result = self.client.get_matching_new_listings(
+                task=task,
+                created_after=started_at
+            )
+
+            if listings_result["status_code"] != 200:
+                print(f"Could not check listings for user {username}")
+                continue
+
+            listings = listings_result["body"].get("data", [])
+
+            if not listings:
+                print(f"No matching listings for {username}")
+                continue
+
+            links = []
+
+            for listing in listings[:10]:
+                link = (
+                        listing.get("url")
+                        or listing.get("link")
+                        or listing.get("listing_url")
+                        or listing.get("detail_url")
+                )
+
+                if link:
+                    links.append(link)
+
+            if not links:
+                print(f"Listings found but no links for {username}")
                 continue
 
             subject = "LetMeRent notification"
-            body = f"New housing found in city: {city}"
+
+            body = f"Hi {username},\n\n"
+            body += (
+                f"We found new housing listings in {city} "
+                f"that match your requirements:\n\n"
+            )
+
+            for index, link in enumerate(links, start=1):
+                body += f"{index}. {link}\n"
+
+            body += "\nKind regards,\nLetMeRent"
 
             try:
-                with self.app.app_context():
+                if self.app:
+                    with self.app.app_context():
+                        self.email_client.send_email(
+                            to_email=user_email,
+                            subject=subject,
+                            body=body
+                        )
+                else:
                     self.email_client.send_email(
                         to_email=user_email,
                         subject=subject,
@@ -116,10 +155,10 @@ class ChronoScheduler:
                     )
 
                 sent_pairs.add(pair)
-                print(f"Email sent to {user_email} for city {city}")
+                print(f"Email sent to {user_email}")
 
             except Exception as exc:
-                print(f"Error sending email to {user_email} for city {city}: {exc}")
+                print(f"Error sending email to {user_email}: {exc}")
 
     def run_and_wait_for_city(self, city, spiders_list):
         print(f"Starting spider for {city}")
