@@ -197,7 +197,11 @@ class ChronoScheduler:
                 continue
 
             if spider:
-                city_spiders_map[city].add(spider.strip())
+                for spider_name in spider.split(","):
+                    spider_name = spider_name.strip()
+
+                    if spider_name:
+                        city_spiders_map[city].add(spider_name)
             else:
                 city_spiders_map[city] = set()
 
