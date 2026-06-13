@@ -6,7 +6,7 @@ services:
       - "5001:5001"
 
     environment:
-      SCRAPER_SERVICE_URL: "http://api:5000"
+      SCRAPER_SERVICE_URL: "http://letmerent-scraper_api_1:5000"
       OLD_LISTINGS_DAYS: "30"
       SCHEDULER_INTERVAL_MINUTES: "10"
       SMTP_HOST: "smtp.gmail.com"
