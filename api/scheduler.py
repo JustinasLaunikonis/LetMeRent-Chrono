@@ -47,6 +47,18 @@ class ChronoScheduler:
             print("No chrono tasks found.")
             return
 
+        # Only keep tasks where the user has instant alerts turned on
+        enabled_tasks = []
+        for task in tasks:
+            if self.is_task_enabled(task):
+                enabled_tasks.append(task)
+
+        tasks = enabled_tasks
+
+        if not tasks:
+            print("No enabled chrono tasks found.")
+            return
+
         city_spiders_map = self.group_tasks_by_city(tasks)
 
         if not city_spiders_map:
@@ -179,6 +191,15 @@ class ChronoScheduler:
         print(f"Final spider result for {city}:", final_result)
 
         return final_result
+
+    @staticmethod
+    def is_task_enabled(task):
+        enabled = task.get("enabled", True)
+
+        if enabled is None:
+            return True
+
+        return bool(enabled)
 
     @staticmethod
     def group_tasks_by_city(tasks):
